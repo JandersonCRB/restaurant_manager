@@ -86,6 +86,13 @@ class _HomePageState extends State<HomePage> {
               onPressed: () => openIngredientsPage(context),
               child: const Text("INGREDIENTES"),
             ),
+            const SizedBox(
+              height: 16,
+            ),
+            FilledButton(
+              onPressed: () {},
+              child: const Text("PRATOS"),
+            ),
           ],
         ),
       ),
