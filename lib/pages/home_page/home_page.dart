@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:biblioteca_ui/models/ingredient.dart';
+import 'package:biblioteca_ui/services/database_service.dart';
 import 'package:flutter/material.dart';
 
 import '../list_ingredients_page/list_ingredients_page.dart';
-
-int id = 0;
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,27 +14,49 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int ingredientId = 0;
   List<Ingredient> ingredients = [];
+
+  void _saveDatabase() {
+    saveDatabase(ingredients: ingredients, lastIngredientId: ingredientId);
+  }
+
+  void _loadDatabase() {
+    DatabaseSchema db = loadDatabase();
+    ingredients = db.ingredients;
+    ingredientId = db.lastIngredientId;
+
+    print("Database loaded");
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    _loadDatabase();
+
+    Timer.periodic(const Duration(seconds: 5), (_) => _saveDatabase());
+  }
 
   void addIngredient(String ingredientName) {
     if (ingredients.any((ingredient) =>
         ingredient.name!.toLowerCase() == ingredientName.toLowerCase())) {
       return;
     }
-    ingredients.add(Ingredient(id: id++, name: ingredientName, quantity: 0));
+    ingredients.add(Ingredient(id: ingredientId++, name: ingredientName, quantity: 0));
   }
 
-  void deleteIngredient(int id) {
-    ingredients.removeWhere((ingredient) => ingredient.id == id);
+  void deleteIngredient(int ingredientId) {
+    ingredients.removeWhere((ingredient) => ingredient.id == ingredientId);
   }
 
-  void increaseQuantity(int id) {
-    Ingredient ingredient = ingredients.firstWhere((ingredient) => ingredient.id == id);
+  void increaseQuantity(int ingredientId) {
+    Ingredient ingredient = ingredients.firstWhere((ingredient) => ingredient.id == ingredientId);
     ingredient.quantity = ingredient.quantity! + 1;
   }
 
-  void decreaseQuantity(int id) {
-    Ingredient ingredient = ingredients.firstWhere((ingredient) => ingredient.id == id);
+  void decreaseQuantity(int ingredientId) {
+    Ingredient ingredient = ingredients.firstWhere((ingredient) => ingredient.id == ingredientId);
     if (ingredient.quantity! > 0) {
       ingredient.quantity = ingredient.quantity! - 1;
     }
@@ -59,12 +82,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       body: Container(
         width: double.infinity,
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("lib/images/minimessi.png"),
-            fit: BoxFit.cover
-          ),
-        ),
+        color: Colors.black87,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
