@@ -47,7 +47,8 @@ class _ListIngredientsPageState extends State<ListIngredientsPage> {
         title: const Text("Ingredientes"),
       ),
       body: Container(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+        padding:
+            const EdgeInsets.only(top: 16, left: 16, right: 16, bottom: 16),
         width: double.infinity,
         child: SingleChildScrollView(
           child: Column(
@@ -57,6 +58,9 @@ class _ListIngredientsPageState extends State<ListIngredientsPage> {
                 onPressed: () {
                   openNewIngredientModal(context);
                 },
+              ),
+              const SizedBox(
+                height: 16,
               ),
               Table(
                 children: [
