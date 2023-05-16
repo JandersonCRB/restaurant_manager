@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:biblioteca_ui/models/ingredient.dart';
+import 'package:biblioteca_ui/pages/list_dishes_page/list_dishes_page.dart';
 import 'package:biblioteca_ui/services/database_service.dart';
 import 'package:flutter/material.dart';
 
+import '../../models/dish.dart';
 import '../list_ingredients_page/list_ingredients_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -15,16 +17,23 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int ingredientId = 0;
+  int dishId = 0;
   List<Ingredient> ingredients = [];
+  List<Dish> dishes = [];
 
   void _saveDatabase() {
-    saveDatabase(ingredients: ingredients, lastIngredientId: ingredientId);
+    saveDatabase(ingredients: ingredients, lastIngredientId: ingredientId, dishes: dishes, lastDishId: dishId);
   }
 
   void _loadDatabase() {
     DatabaseSchema db = loadDatabase();
+
+    // ingredients
     ingredients = db.ingredients;
     ingredientId = db.lastIngredientId;
+
+    dishes = db.dishes;
+
 
     print("Database loaded");
   }
@@ -43,7 +52,8 @@ class _HomePageState extends State<HomePage> {
         ingredient.name!.toLowerCase() == ingredientName.toLowerCase())) {
       return;
     }
-    ingredients.add(Ingredient(id: ingredientId++, name: ingredientName, quantity: 0));
+    ingredients
+        .add(Ingredient(id: ingredientId++, name: ingredientName, quantity: 0));
   }
 
   void deleteIngredient(int ingredientId) {
@@ -51,18 +61,38 @@ class _HomePageState extends State<HomePage> {
   }
 
   void increaseQuantity(int ingredientId) {
-    Ingredient ingredient = ingredients.firstWhere((ingredient) => ingredient.id == ingredientId);
+    Ingredient ingredient =
+        ingredients.firstWhere((ingredient) => ingredient.id == ingredientId);
     ingredient.quantity = ingredient.quantity! + 1;
   }
 
   void decreaseQuantity(int ingredientId) {
-    Ingredient ingredient = ingredients.firstWhere((ingredient) => ingredient.id == ingredientId);
+    Ingredient ingredient =
+        ingredients.firstWhere((ingredient) => ingredient.id == ingredientId);
     if (ingredient.quantity! > 0) {
       ingredient.quantity = ingredient.quantity! - 1;
     }
   }
 
-  void openIngredientsPage(context) {
+  void addDish(String dishName) {
+    if (dishes
+        .any((dish) => dish.name!.toLowerCase() == dishName.toLowerCase())) {
+      return;
+    }
+    dishes.add(
+      Dish(
+        id: dishId++,
+        name: dishName,
+        ingredientIds: [],
+      ),
+    );
+  }
+
+  void deleteDish(int dishId) {
+    dishes.removeWhere((dish) => dish.id == dishId);
+  }
+
+  void openIngredientsPage() {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
@@ -75,6 +105,18 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void openDishesPage() {
+    Navigator.push(
+        context,
+        MaterialPageRoute<void>(
+          builder: (BuildContext context) => ListDishesPage(
+            addDish: addDish,
+            dishes: dishes,
+            deleteDish: deleteDish,
+          ),
+        ));
   }
 
   @override
@@ -92,23 +134,22 @@ class _HomePageState extends State<HomePage> {
             const Text(
               "Bar do minimessi",
               style: TextStyle(
-                fontSize: 36,
-                fontWeight: FontWeight.bold,
-                color: Colors.white
-              ),
+                  fontSize: 36,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
             ),
             const SizedBox(
               height: 62,
             ),
             FilledButton(
-              onPressed: () => openIngredientsPage(context),
+              onPressed: () => openIngredientsPage(),
               child: const Text("INGREDIENTES"),
             ),
             const SizedBox(
               height: 16,
             ),
             FilledButton(
-              onPressed: () {},
+              onPressed: () => openDishesPage(),
               child: const Text("PRATOS"),
             ),
           ],
