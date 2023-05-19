@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:biblioteca_ui/models/ingredient.dart';
 import 'package:biblioteca_ui/pages/list_dishes_page/list_dishes_page.dart';
 import 'package:biblioteca_ui/services/database_service.dart';
+import 'package:biblioteca_ui/stores/restaurant_store.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../models/dish.dart';
 import '../list_ingredients_page/list_ingredients_page.dart';
@@ -16,24 +18,26 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int ingredientId = 0;
   int dishId = 0;
-  List<Ingredient> ingredients = [];
   List<Dish> dishes = [];
 
   void _saveDatabase() {
-    saveDatabase(ingredients: ingredients, lastIngredientId: ingredientId, dishes: dishes, lastDishId: dishId);
+    RestaurantStore restaurantStore = Get.find();
+    saveDatabase(
+        ingredients: restaurantStore.ingredients.value.map((ingredient) => ingredient.value).toList(),
+        lastIngredientId: restaurantStore.lastIngredientId.value,
+        dishes: dishes,
+        lastDishId: dishId);
   }
 
-  void _loadDatabase() {
+  void _loadDatabase(RestaurantStore restaurantStore) {
     DatabaseSchema db = loadDatabase();
 
     // ingredients
-    ingredients = db.ingredients;
-    ingredientId = db.lastIngredientId;
+    restaurantStore.ingredients = db.ingredients.map<Rx<Ingredient>>((ingredient) => ingredient.obs).toList().obs;
+    restaurantStore.lastIngredientId = db.lastIngredientId.obs;
 
     dishes = db.dishes;
-
 
     print("Database loaded");
   }
@@ -42,36 +46,11 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
-    _loadDatabase();
+    var restaurantStore = Get.put(RestaurantStore());
+
+    _loadDatabase(restaurantStore);
 
     Timer.periodic(const Duration(seconds: 5), (_) => _saveDatabase());
-  }
-
-  void addIngredient(String ingredientName) {
-    if (ingredients.any((ingredient) =>
-        ingredient.name!.toLowerCase() == ingredientName.toLowerCase())) {
-      return;
-    }
-    ingredients
-        .add(Ingredient(id: ingredientId++, name: ingredientName, quantity: 0));
-  }
-
-  void deleteIngredient(int ingredientId) {
-    ingredients.removeWhere((ingredient) => ingredient.id == ingredientId);
-  }
-
-  void increaseQuantity(int ingredientId) {
-    Ingredient ingredient =
-        ingredients.firstWhere((ingredient) => ingredient.id == ingredientId);
-    ingredient.quantity = ingredient.quantity! + 1;
-  }
-
-  void decreaseQuantity(int ingredientId) {
-    Ingredient ingredient =
-        ingredients.firstWhere((ingredient) => ingredient.id == ingredientId);
-    if (ingredient.quantity! > 0) {
-      ingredient.quantity = ingredient.quantity! - 1;
-    }
   }
 
   void addDish(String dishName) {
@@ -96,13 +75,7 @@ class _HomePageState extends State<HomePage> {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (BuildContext context) => ListIngredientsPage(
-          ingredients: ingredients,
-          addIngredient: addIngredient,
-          deleteIngredient: deleteIngredient,
-          increaseQuantity: increaseQuantity,
-          decreaseQuantity: decreaseQuantity,
-        ),
+        builder: (BuildContext context) => const ListIngredientsPage(),
       ),
     );
   }

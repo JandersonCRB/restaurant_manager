@@ -1,47 +1,23 @@
+import 'package:biblioteca_ui/stores/restaurant_store.dart';
 import 'package:flutter/material.dart';
-import '../../models/ingredient.dart';
+import 'package:get/get.dart';
 import 'add_ingredient_modal.dart';
 
-class ListIngredientsPage extends StatefulWidget {
-  final List<Ingredient> ingredients;
-  final void Function(String) addIngredient;
-  final void Function(int) deleteIngredient;
-  final void Function(int) increaseQuantity;
-  final void Function(int) decreaseQuantity;
-
+class ListIngredientsPage extends StatelessWidget {
   const ListIngredientsPage({
     super.key,
-    required this.ingredients,
-    required this.addIngredient,
-    required this.deleteIngredient,
-    required this.increaseQuantity,
-    required this.decreaseQuantity,
   });
-
-  @override
-  State<ListIngredientsPage> createState() => _ListIngredientsPageState();
-}
-
-class _ListIngredientsPageState extends State<ListIngredientsPage> {
-  void addIngredient(String ingredientName) {
-    setState(() {
-      widget.addIngredient(ingredientName);
-    });
-  }
 
   void openNewIngredientModal(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AddIngredientModal(addIngredient: (ingredientName) {
-        setState(() {
-          widget.addIngredient(ingredientName);
-        });
-      }),
+      builder: (context) => AddIngredientModal(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    RestaurantStore restaurantStore = Get.find();
     return Scaffold(
       appBar: AppBar(
         title: const Text("Ingredientes"),
@@ -62,70 +38,69 @@ class _ListIngredientsPageState extends State<ListIngredientsPage> {
               const SizedBox(
                 height: 16,
               ),
-              Table(
-                children: [
-                  const TableRow(children: [
-                    SizedBox(height: 40, child: Text("Nome")),
-                    Text("Quantidade"),
-                    Text("Ações")
-                  ]),
-                  ...widget.ingredients
-                      .map(
-                        (ingredient) => TableRow(
-                          children: [
-                            SizedBox(
-                              height: 30,
-                              child: Text(
-                                "${ingredient.name}",
+              Obx(
+                () => Table(
+                  children: [
+                    const TableRow(children: [
+                      SizedBox(height: 40, child: Text("Nome")),
+                      Text("Quantidade"),
+                      Text("Ações")
+                    ]),
+                    ...restaurantStore.ingredients
+                        .map(
+                          (ingredient) => TableRow(
+                            children: [
+                              SizedBox(
+                                height: 30,
+                                child: Text(
+                                  "${ingredient.value.name}",
+                                ),
                               ),
-                            ),
-                            Text("${ingredient.quantity}"),
-                            Row(
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      widget.increaseQuantity(ingredient.id!);
-                                    });
-                                  },
-                                  child: const Icon(
-                                    Icons.add,
-                                    color: Colors.green,
+                              Text("${ingredient.value.quantity}"),
+                              Row(
+                                children: [
+                                  InkWell(
+                                    onTap: () {
+                                      restaurantStore.increaseQuantity(
+                                          ingredient.value.id!);
+                                    },
+                                    child: const Icon(
+                                      Icons.add,
+                                      color: Colors.green,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 6),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      widget.decreaseQuantity(ingredient.id!);
-                                    });
-                                  },
-                                  child: const Icon(
-                                    Icons.remove,
-                                    color: Colors.red,
+                                  const SizedBox(width: 6),
+                                  InkWell(
+                                    onTap: () {
+                                      restaurantStore.decreaseQuantity(
+                                          ingredient.value.id!);
+                                    },
+                                    child: const Icon(
+                                      Icons.remove,
+                                      color: Colors.red,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 6),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      widget.deleteIngredient(ingredient.id!);
-                                    });
-                                  },
-                                  child: const Icon(
-                                    Icons.delete,
-                                    size: 20,
-                                    color: Colors.grey,
+                                  const SizedBox(width: 6),
+                                  InkWell(
+                                    onTap: () {
+                                      restaurantStore.deleteIngredient(
+                                          ingredient.value.id!);
+                                    },
+                                    child: const Icon(
+                                      Icons.delete,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      )
-                      .toList()
-                ],
-              )
+                                ],
+                              )
+                            ],
+                          ),
+                        )
+                        .toList()
+                  ],
+                ),
+              ),
             ],
           ),
         ),

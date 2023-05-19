@@ -1,17 +1,14 @@
+import 'package:biblioteca_ui/stores/restaurant_store.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-class AddIngredientModal extends StatefulWidget {
-  final Function(String) addIngredient;
-  const AddIngredientModal({super.key, required this.addIngredient});
+class AddIngredientModal extends StatelessWidget {
+  AddIngredientModal({super.key});
 
-  @override
-  State<AddIngredientModal> createState() => _AddIngredientModalState();
-}
-
-class _AddIngredientModalState extends State<AddIngredientModal> {
   String nome = "";
+
   void closeModal() {
-    Navigator.pop(context);
+    Get.back();
   }
 
   void changeName(String newName) {
@@ -19,7 +16,8 @@ class _AddIngredientModalState extends State<AddIngredientModal> {
   }
 
   void confirm() {
-    widget.addIngredient(nome);
+    RestaurantStore restaurantStore = Get.find();
+    restaurantStore.addIngredient(nome);
     closeModal();
   }
 
