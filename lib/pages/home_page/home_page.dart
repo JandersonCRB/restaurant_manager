@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:biblioteca_ui/models/ingredient.dart';
 import 'package:biblioteca_ui/pages/list_dishes_page/list_dishes_page.dart';
 import 'package:biblioteca_ui/services/database_service.dart';
 import 'package:biblioteca_ui/stores/restaurant_store.dart';
@@ -8,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../../models/dish.dart';
+import '../../models/ingredient.dart';
 import '../list_ingredients_page/list_ingredients_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -18,26 +18,30 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int dishId = 0;
-  List<Dish> dishes = [];
-
   void _saveDatabase() {
     RestaurantStore restaurantStore = Get.find();
     saveDatabase(
-        ingredients: restaurantStore.ingredients.value.map((ingredient) => ingredient.value).toList(),
-        lastIngredientId: restaurantStore.lastIngredientId.value,
-        dishes: dishes,
-        lastDishId: dishId);
+      ingredients:
+          restaurantStore.ingredients.value.map((dish) => dish.value).toList(),
+      lastIngredientId: restaurantStore.lastIngredientId.value,
+      dishes: restaurantStore.dishes.value.map((dish) => dish.value).toList(),
+      lastDishId: restaurantStore.lastDishId.value,
+    );
   }
 
   void _loadDatabase(RestaurantStore restaurantStore) {
     DatabaseSchema db = loadDatabase();
 
     // ingredients
-    restaurantStore.ingredients = db.ingredients.map<Rx<Ingredient>>((ingredient) => ingredient.obs).toList().obs;
+    restaurantStore.ingredients = db.ingredients
+        .map<Rx<Ingredient>>((ingredient) => ingredient.obs)
+        .toList()
+        .obs;
     restaurantStore.lastIngredientId = db.lastIngredientId.obs;
 
-    dishes = db.dishes;
+    restaurantStore.dishes =
+        db.dishes.map<Rx<Dish>>((ingredient) => ingredient.obs).toList().obs;
+    restaurantStore.lastDishId = db.lastDishId.obs;
 
     print("Database loaded");
   }
@@ -53,24 +57,6 @@ class _HomePageState extends State<HomePage> {
     Timer.periodic(const Duration(seconds: 5), (_) => _saveDatabase());
   }
 
-  void addDish(String dishName) {
-    if (dishes
-        .any((dish) => dish.name!.toLowerCase() == dishName.toLowerCase())) {
-      return;
-    }
-    dishes.add(
-      Dish(
-        id: dishId++,
-        name: dishName,
-        ingredientIds: [],
-      ),
-    );
-  }
-
-  void deleteDish(int dishId) {
-    dishes.removeWhere((dish) => dish.id == dishId);
-  }
-
   void openIngredientsPage() {
     Navigator.push(
       context,
@@ -82,14 +68,11 @@ class _HomePageState extends State<HomePage> {
 
   void openDishesPage() {
     Navigator.push(
-        context,
-        MaterialPageRoute<void>(
-          builder: (BuildContext context) => ListDishesPage(
-            addDish: addDish,
-            dishes: dishes,
-            deleteDish: deleteDish,
-          ),
-        ));
+      context,
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) => const ListDishesPage(),
+      ),
+    );
   }
 
   @override

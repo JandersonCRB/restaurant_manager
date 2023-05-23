@@ -1,37 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-import '../../models/dish.dart';
+import '../../stores/restaurant_store.dart';
 import 'add_dish_modal.dart';
 
 class ListDishesPage extends StatefulWidget {
-  List<Dish> dishes;
-  final void Function(String) addDish;
-  final void Function(int) deleteDish;
-
-  ListDishesPage({super.key, required this.addDish, required this.dishes, required this.deleteDish});
+  const ListDishesPage({super.key});
 
   @override
   State<ListDishesPage> createState() => _ListDishesPageState();
 }
 
 class _ListDishesPageState extends State<ListDishesPage> {
-    void addDish(String dishName) {
-    setState(() {
-      widget.addDish(dishName);
-    });
-  }
-
   void openNewDishModal() {
     showDialog(
       context: context,
-      builder: (context) => AddDishModal(
-        addDish: addDish,
-      ),
+      builder: (context) => const AddDishModal(),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    RestaurantStore restaurantStore = Get.find();
+
     return Scaffold(
       appBar: AppBar(title: const Text("Pratos")),
       body: Container(
@@ -48,59 +39,62 @@ class _ListDishesPageState extends State<ListDishesPage> {
               const SizedBox(
                 height: 16,
               ),
-              Table(
-                children: [
-                  const TableRow(children: [
-                    SizedBox(height: 40, child: Text("Nome")),
-                    Text("Ingredientes"),
-                    Text("Ações")
-                  ]),
-                  ...widget.dishes
-                      .map(
-                        (dish) => TableRow(
-                          children: [
-                            SizedBox(
-                              height: 30,
-                              child: Text(
-                                "${dish.name}",
+              Obx(
+                () => Table(
+                  children: [
+                    const TableRow(children: [
+                      SizedBox(height: 40, child: Text("Nome")),
+                      Text("Ingredientes"),
+                      Text("Ações")
+                    ]),
+                    ...restaurantStore.dishes
+                        .map(
+                          (dish) => TableRow(
+                            children: [
+                              SizedBox(
+                                height: 30,
+                                child: Text(
+                                  "${dish.value.name}",
+                                ),
                               ),
-                            ),
-                            const Text("ingredientes"),
-                            Row(
-                              children: [
-                                const SizedBox(width: 6),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      // widget.decreaseQuantity(ingredient.id!);
-                                    });
-                                  },
-                                  child: const Icon(
-                                    Icons.edit,
-                                    color: Colors.red,
+                              const Text("ingredientes"),
+                              Row(
+                                children: [
+                                  const SizedBox(width: 6),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        // widget.decreaseQuantity(ingredient.id!);
+                                      });
+                                    },
+                                    child: const Icon(
+                                      Icons.edit,
+                                      color: Colors.red,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 6),
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      widget.deleteDish(dish.id!);
-                                    });
-                                  },
-                                  child: const Icon(
-                                    Icons.delete,
-                                    size: 20,
-                                    color: Colors.grey,
+                                  const SizedBox(width: 6),
+                                  InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        restaurantStore
+                                            .deleteDish(dish.value.id!);
+                                      });
+                                    },
+                                    child: const Icon(
+                                      Icons.delete,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            )
-                          ],
-                        ),
-                      )
-                      .toList()
-                ],
-              )
+                                ],
+                              )
+                            ],
+                          ),
+                        )
+                        .toList()
+                  ],
+                ),
+              ),
             ],
           ),
         ),

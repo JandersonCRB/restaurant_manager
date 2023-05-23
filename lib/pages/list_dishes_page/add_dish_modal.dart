@@ -1,9 +1,10 @@
+import 'package:biblioteca_ui/stores/restaurant_store.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class AddDishModal extends StatefulWidget {
-  final void Function(String) addDish;
 
-  const AddDishModal({super.key, required this.addDish});
+  const AddDishModal({super.key});
 
   @override
   State<AddDishModal> createState() => _AddDishModalState();
@@ -21,7 +22,8 @@ class _AddDishModalState extends State<AddDishModal> {
   }
 
   void confirm() {
-    widget.addDish(name);
+    RestaurantStore restaurantStore = Get.find();
+    restaurantStore.addDish(name);
     closeModal();
   }
 
