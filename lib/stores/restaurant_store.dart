@@ -9,7 +9,6 @@ class RestaurantStore extends GetxController {
   var lastIngredientId = 0.obs;
   var lastDishId = 0.obs;
 
-
   void addIngredient(String ingredientName) {
     if (ingredients.any(
       (ingredient) =>
@@ -50,9 +49,9 @@ class RestaurantStore extends GetxController {
     }
   }
 
-    void addDish(String dishName) {
-    if (dishes
-        .any((dish) => dish.value.name!.toLowerCase() == dishName.toLowerCase())) {
+  void addDish(String dishName) {
+    if (dishes.any(
+        (dish) => dish.value.name!.toLowerCase() == dishName.toLowerCase())) {
       return;
     }
 
@@ -69,5 +68,36 @@ class RestaurantStore extends GetxController {
 
   void deleteDish(int dishId) {
     dishes.removeWhere((dish) => dish.value.id == dishId);
+  }
+
+  Rx<Dish>? findDish(int id) {
+    return dishes.firstWhere((dish) => dish.value.id == id);
+  }
+
+  void addIngredientToDish(int dishId, int ingredientId) {
+    Rx<Dish>? dish = findDish(dishId);
+    if (dish == null) {
+      return;
+    }
+
+    dish.update((newDish) {
+      if (!newDish!.ingredientIds!
+          .any((newIngredientId) => newIngredientId == ingredientId)) {
+        newDish.ingredientIds!.add(ingredientId);
+      }
+    });
+  }
+
+  String ingredientNames(List<int> ingredientIds) {
+    List<String> currentIngredients = ingredients
+        .where(
+          (ingredient) => ingredientIds.any((id) => ingredient.value.id == id),
+        )
+        .map((ingredient) => ingredient.value.name!)
+        .toList();
+    if (currentIngredients.isEmpty) {
+      return "Nenhum ingrediente";
+    }
+    return currentIngredients.join(", ");
   }
 }

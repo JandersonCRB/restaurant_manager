@@ -1,3 +1,4 @@
+import 'package:biblioteca_ui/pages/list_dishes_page/edit_dish_ingredients_modal.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +17,13 @@ class _ListDishesPageState extends State<ListDishesPage> {
     showDialog(
       context: context,
       builder: (context) => const AddDishModal(),
+    );
+  }
+
+  void openEditDishIngredientsModal(int dishId) {
+    showDialog(
+      context: context,
+      builder: (context) => EditDishIngredientsModal(dishId: dishId),
     );
   }
 
@@ -42,11 +50,13 @@ class _ListDishesPageState extends State<ListDishesPage> {
               Obx(
                 () => Table(
                   children: [
-                    const TableRow(children: [
-                      SizedBox(height: 40, child: Text("Nome")),
-                      Text("Ingredientes"),
-                      Text("Ações")
-                    ]),
+                    const TableRow(
+                      children: [
+                        SizedBox(height: 40, child: Text("Nome")),
+                        Text("Ingredientes"),
+                        Text("Ações")
+                      ],
+                    ),
                     ...restaurantStore.dishes
                         .map(
                           (dish) => TableRow(
@@ -57,12 +67,20 @@ class _ListDishesPageState extends State<ListDishesPage> {
                                   "${dish.value.name}",
                                 ),
                               ),
-                              const Text("ingredientes"),
+                              Obx(
+                                () => Text(
+                                  restaurantStore.ingredientNames(
+                                      dish.value.ingredientIds!),
+                                ),
+                              ),
                               Row(
                                 children: [
                                   const SizedBox(width: 6),
                                   InkWell(
                                     onTap: () {
+                                      openEditDishIngredientsModal(
+                                        dish.value.id!,
+                                      );
                                     },
                                     child: const Icon(
                                       Icons.edit,
