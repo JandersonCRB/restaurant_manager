@@ -63,9 +63,6 @@ class _ListDishesPageState extends State<ListDishesPage> {
                                   const SizedBox(width: 6),
                                   InkWell(
                                     onTap: () {
-                                      setState(() {
-                                        // widget.decreaseQuantity(ingredient.id!);
-                                      });
                                     },
                                     child: const Icon(
                                       Icons.edit,
@@ -75,10 +72,8 @@ class _ListDishesPageState extends State<ListDishesPage> {
                                   const SizedBox(width: 6),
                                   InkWell(
                                     onTap: () {
-                                      setState(() {
-                                        restaurantStore
-                                            .deleteDish(dish.value.id!);
-                                      });
+                                      restaurantStore
+                                          .deleteDish(dish.value.id!);
                                     },
                                     child: const Icon(
                                       Icons.delete,
