@@ -49,9 +49,13 @@ class _ListDishesPageState extends State<ListDishesPage> {
               ),
               Obx(
                 () => Table(
+                  columnWidths: const {0: FixedColumnWidth(45)},
                   children: [
                     const TableRow(
                       children: [
+                        SizedBox(
+                          width: 40,
+                        ),
                         SizedBox(height: 40, child: Text("Nome")),
                         Text("Ingredientes"),
                         Text("Ações")
@@ -61,6 +65,24 @@ class _ListDishesPageState extends State<ListDishesPage> {
                         .map(
                           (dish) => TableRow(
                             children: [
+                              SizedBox(
+                                child: restaurantStore
+                                        .isDishAvaiable(dish.value.id!)
+                                    ? const Tooltip(
+                                        message: "Disponível",
+                                        child: Icon(
+                                          Icons.done,
+                                          color: Colors.green,
+                                        ),
+                                      )
+                                    : const Tooltip(
+                                        message: "Não disponível",
+                                        child: Icon(
+                                          Icons.close,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                              ),
                               SizedBox(
                                 height: 30,
                                 child: Text(
@@ -76,6 +98,16 @@ class _ListDishesPageState extends State<ListDishesPage> {
                               Row(
                                 children: [
                                   const SizedBox(width: 6),
+                                  Tooltip(
+                                    message: "Descontar do estoque",
+                                    child: InkWell(
+                                      onTap: () {
+                                        restaurantStore.stockDiscount(dish.value.id!);
+                                      },
+                                      child: const Icon(
+                                          Icons.keyboard_double_arrow_down,),
+                                    ),
+                                  ),
                                   InkWell(
                                     onTap: () {
                                       openEditDishIngredientsModal(

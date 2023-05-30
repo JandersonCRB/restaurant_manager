@@ -113,4 +113,36 @@ class RestaurantStore extends GetxController {
           (currentIngredientId) => currentIngredientId == ingredientId);
     });
   }
+
+  bool isDishAvaiable(int dishId) {
+    Dish dish = findDish(dishId)!.value;
+
+    for(int i = 0;i < dish.ingredientIds!.length;i++) {
+      int ingredientId = dish.ingredientIds![i];
+      Ingredient ingredient = findIngredientById(ingredientId).value;
+
+      if(ingredient.quantity! <= 0) {
+        return false;
+      } 
+    }
+
+    return true;
+  }
+
+  void stockDiscount(int dishId) {
+    if(!isDishAvaiable(dishId)) {
+      return;
+    }
+    
+    Dish dish = findDish(dishId)!.value;
+
+    for(int i = 0;i < dish.ingredientIds!.length;i++) {
+      int ingredientId = dish.ingredientIds![i];
+      Rx<Ingredient> ingredient = findIngredientById(ingredientId);
+
+      ingredient.update((ing) { 
+        ing!.quantity = ing.quantity! - 1;
+      });
+    }
+  }
 }
