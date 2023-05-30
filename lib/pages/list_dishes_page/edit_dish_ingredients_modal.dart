@@ -2,6 +2,7 @@ import 'package:biblioteca_ui/stores/restaurant_store.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../models/ingredient.dart';
 import '../../models/dish.dart';
 
 class EditDishIngredientsModal extends StatefulWidget {
@@ -35,7 +36,8 @@ class _EditDishIngredientsModalState extends State<EditDishIngredientsModal> {
     RestaurantStore restaurantStore = Get.find();
     Rx<Dish>? dish = restaurantStore.findDish(widget.dishId);
 
-    restaurantStore.addIngredientToDish(dish!.value.id!, currentIgredientId.value);
+    restaurantStore.addIngredientToDish(
+        dish!.value.id!, currentIgredientId.value);
   }
 
   @override
@@ -59,6 +61,50 @@ class _EditDishIngredientsModalState extends State<EditDishIngredientsModal> {
               "Modificar ingredientes de ${dish.value.name}",
               textAlign: TextAlign.center,
               style: const TextStyle(fontSize: 24),
+            ),
+            const SizedBox(
+              height: 32,
+            ),
+            Obx(
+              () => Table(
+                children: [
+                  const TableRow(
+                    children: [
+                      SizedBox(height: 40, child: Text("Ingrediente")),
+                      Text("Ações")
+                    ],
+                  ),
+                  ...dish.value.ingredientIds!.map(
+                    (ingredientId) {
+                      Rx<Ingredient> ingredient =
+                          restaurantStore.findIngredientById(ingredientId);
+                      return TableRow(
+                        children: [
+                          SizedBox(
+                            height: 25,
+                            child: Text(ingredient.value.name!),
+                          ),
+                          Row(
+                            children: [
+                              InkWell(
+                                onTap: () {
+                                  restaurantStore.deleteIngredientFromDish(
+                                      dish.value.id!, ingredientId);
+                                },
+                                child: const Icon(
+                                  Icons.delete,
+                                  size: 20,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          )
+                        ],
+                      );
+                    },
+                  ).toList()
+                ],
+              ),
             ),
             const SizedBox(
               height: 32,

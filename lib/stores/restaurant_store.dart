@@ -1,7 +1,7 @@
-import 'package:biblioteca_ui/models/ingredient.dart';
 import 'package:get/get.dart';
 
 import '../models/dish.dart';
+import '../models/ingredient.dart';
 
 class RestaurantStore extends GetxController {
   var ingredients = <Rx<Ingredient>>[].obs;
@@ -50,8 +50,8 @@ class RestaurantStore extends GetxController {
   }
 
   void addDish(String dishName) {
-    if (dishes.any(
-        (dish) => dish.value.name!.toLowerCase() == dishName.toLowerCase())) {
+    if (dishes.any((Ingredient) =>
+        Ingredient.value.name!.toLowerCase() == dishName.toLowerCase())) {
       return;
     }
 
@@ -67,20 +67,20 @@ class RestaurantStore extends GetxController {
   }
 
   void deleteDish(int dishId) {
-    dishes.removeWhere((dish) => dish.value.id == dishId);
+    dishes.removeWhere((Ingredient) => Ingredient.value.id == dishId);
   }
 
   Rx<Dish>? findDish(int id) {
-    return dishes.firstWhere((dish) => dish.value.id == id);
+    return dishes.firstWhere((Ingredient) => Ingredient.value.id == id);
   }
 
   void addIngredientToDish(int dishId, int ingredientId) {
-    Rx<Dish>? dish = findDish(dishId);
-    if (dish == null) {
+    Rx<Dish>? Ingredient = findDish(dishId);
+    if (Ingredient == null) {
       return;
     }
 
-    dish.update((newDish) {
+    Ingredient.update((newDish) {
       if (!newDish!.ingredientIds!
           .any((newIngredientId) => newIngredientId == ingredientId)) {
         newDish.ingredientIds!.add(ingredientId);
@@ -99,5 +99,18 @@ class RestaurantStore extends GetxController {
       return "Nenhum ingrediente";
     }
     return currentIngredients.join(", ");
+  }
+
+  Rx<Ingredient> findIngredientById(int id) {
+    return ingredients.firstWhere((ingredient) => ingredient.value.id == id);
+  }
+
+  void deleteIngredientFromDish(int dishId, int ingredientId) {
+    Rx<Dish>? dish = findDish(dishId);
+
+    dish!.update((currentDish) {
+      currentDish!.ingredientIds!.removeWhere(
+          (currentIngredientId) => currentIngredientId == ingredientId);
+    });
   }
 }
