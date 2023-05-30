@@ -8,7 +8,7 @@ class Dish {
   Dish.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     name = json['name'];
-    ingredientIds = json['igredientIds'];
+    ingredientIds = json['ingredientIds'].map<int>((e) => int.parse(e)).toList();
   }
 
   Map<String, dynamic> toJson() {
